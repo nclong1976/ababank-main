@@ -1,0 +1,365 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-khmer: "Kantumruy Pro", "Battambang", sans-serif;
+
+  --color-aba-primary: #005c7a;
+  --color-aba-dark: #011a24;
+  --color-aba-red: #e31e24;
+  --color-aba-cyan: #00bcd4;
+}
+
+/* ============================================
+   MOBILE-FIRST RESPONSIVE RESET
+   ============================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-aba-dark);
+  color: white;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
+}
+
+/* ============================================
+   APP SHELL
+   ============================================ */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--color-aba-dark);
+  overflow: hidden;
+}
+
+/*
+  .mobile-shell — khung chua toan bo app
+  - Safe area padding de xu ly notch / home indicator
+  - height: 100dvh de tranh iOS Safari bottom bar an mat phan duoi
+*/
+.mobile-shell {
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-aba-dark);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* .screen — lop phu toan khung cho cac man hinh con */
+.screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Cuc nho (< 320px) — thiet bi rat cu */
+@media (max-width: 319px) {
+  .mobile-shell {
+    max-width: 100%;
+    font-size: 13px;
+  }
+  .icon-label {
+    font-size: 0.55rem;
+  }
+  .icon-btn {
+    min-width: 40px !important;
+    max-width: 60px !important;
+  }
+}
+
+/* Small phones (320px-374px) — iPhone SE 1st gen, 5 */
+@media (min-width: 320px) and (max-width: 374px) {
+  .mobile-shell {
+    max-width: 100%;
+  }
+  .icon-label {
+    font-size: 0.6rem;
+  }
+  .icon-btn {
+    width: 52px !important;
+    height: 52px !important;
+  }
+}
+
+/* Standard phones (375px-413px) — iPhone 7, 8, X, 11, SE 2nd/3rd gen */
+@media (min-width: 375px) and (max-width: 413px) {
+  .mobile-shell {
+    max-width: 100%;
+  }
+}
+
+/* Large phones (414px-479px) — iPhone 8 Plus, 11 Pro Max, 14 Plus */
+@media (min-width: 414px) and (max-width: 479px) {
+  .mobile-shell {
+    max-width: 100%;
+  }
+}
+
+/* Phablet / small tablet (480px+) */
+@media (min-width: 480px) {
+  .mobile-shell {
+    max-width: 480px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Tablet / Desktop (768px+) — phone frame giua man hinh */
+@media (min-width: 768px) {
+  #root {
+    background: #000d14;
+    justify-content: center;
+    padding: 24px 0;
+  }
+  .mobile-shell {
+    max-width: 390px;
+    height: calc(100vh - 48px);
+    height: calc(100dvh - 48px);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+    /* Reset safe-area padding tren desktop */
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* ============================================
+   SAFE AREA (notch / home indicator)
+   Chi dung cho element dung position: fixed
+   nam NGOAI .mobile-shell (vi du overlay)
+   ============================================ */
+.safe-padding-top {
+  padding-top: env(safe-area-inset-top) !important;
+}
+.safe-padding-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+}
+.safe-margin-top {
+  margin-top: env(safe-area-inset-top);
+}
+
+/* ============================================
+   ICON GRID
+   ============================================ */
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0;
+}
+
+.icon-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 72px;
+  min-width: 44px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin: 0 auto;
+}
+
+.icon-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  margin-top: 0.35rem;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+}
+
+/* ============================================
+   GLOBAL RESPONSIVE HELPERS
+   ============================================ */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.overflow-x-safe {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes ripple {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* ============================================
+   SCROLLBAR UTILITIES
+   ============================================ */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ============================================
+   LEGACY
+   ============================================ */
+.send-again {
+  position: absolute;
+  left: 5.6%;
+  right: 0.27%;
+  top: 14.53%;
+  bottom: 70.32%;
+}
+
+
+/* ============================================
+   OVERLAY FIXED — safe-area cho cac overlay
+   dung position: fixed nam ngoai .mobile-shell
+   ============================================ */
+.overlay-fixed {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+
+/* ============================================
+   HOME SCREEN SCROLL
+   Override .screen overflow-hidden cho home
+   ============================================ */
+.home-screen {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Thu nho account card tren man hinh nho */
+@media (max-width: 390px) {
+  .account-card {
+    padding: 0.875rem 1rem !important;
+  }
+  .balance-amount {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ============================================
+   IPHONE 7 / 8 COMPACT MODE (375x667px)
+   - Short screen height: reduce vertical spacing
+   ============================================ */
+@media (max-height: 680px) {
+  /* Reduce keypad button sizes to fit smaller screens */
+  .keypad-btn {
+    height: 56px !important;
+    width: 56px !important;
+    font-size: 26px !important;
+  }
+
+  /* Compact spacing in auth screens */
+  .auth-avatar {
+    width: 72px !important;
+    height: 72px !important;
+  }
+
+  /* Shrink splash logo */
+  .splash-logo {
+    width: 100px !important;
+    height: 100px !important;
+  }
+}
+
+/* Ensure all screens use 100dvh properly on old iOS */
+@supports not (height: 100dvh) {
+  .mobile-shell,
+  .screen,
+  #root {
+    height: 100vh;
+  }
+}

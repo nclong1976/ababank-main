@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: ABA Mobile - Admin \u0026 User Ledger",
+  "description": "Secure banking app with dual-role PIN login, Admin Adjustment Dashboard, and an Immutable Transaction Ledger for total transparency.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": []
+}

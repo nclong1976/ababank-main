@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "installCommand": "npm install",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "schema.sql"
+    },
+    "api/upload-images.js": {
+      "maxDuration": 30
+    },
+    "api/avatar.js": {
+      "includeFiles": "schema.sql"
+    },
+    "api/blob-upload.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    { "src": "/api/upload-images", "dest": "/api/upload-images.js" },
+    { "src": "/api/blob-upload", "dest": "/api/blob-upload.js" },
+    { "src": "/api/avatar/(.*)", "dest": "/api/avatar.js" },
+    { "src": "/api/(.*)", "dest": "/api/index.js" },
+    { "src": "/auth/(.*)", "dest": "/api/index.js" },
+    { "src": "/manifest.json", "dest": "/manifest.json" },
+    { "src": "/sw.js", "dest": "/sw.js" },
+    { "src": "/icon.png", "dest": "/icon.png" },
+    { "src": "/icon-192x192.png", "dest": "/icon-192x192.png" },
+    { "src": "/icon-512x512.png", "dest": "/icon-512x512.png" },
+    { "src": "/apple-touch-icon.png", "dest": "/apple-touch-icon.png" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}

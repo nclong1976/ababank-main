@@ -1,0 +1,62 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global helper functions
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    // Helper to check for admin role
+    function isAdmin() {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        request.auth.token.email == 'tdthai80qn@gmail.com'
+      );
+    }
+
+    // Validation for Transaction
+    function isValidTransaction(data) {
+      return data.senderId is string && data.senderId.size() > 0 &&
+             data.receiverId is string && data.receiverId.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.status in ['pending', 'completed', 'failed'];
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && (
+        existing().senderId == request.auth.uid || 
+        existing().receiverId == request.auth.uid ||
+        isAdmin()
+      );
+      
+      allow list: if isSignedIn() && (
+        resource.data.senderId == request.auth.uid || 
+        resource.data.receiverId == request.auth.uid ||
+        isAdmin()
+      );
+      
+      allow create: if isSignedIn() && 
+                       isValidId(transactionId) &&
+                       isValidTransaction(incoming()) &&
+                       incoming().senderId == request.auth.uid &&
+                       incoming().timestamp is timestamp;
+      
+      allow update: if isAdmin(); // Allow admins to update status if needed
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+    }
+  }
+}

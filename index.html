@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+    <title>ABA Mobile Remix</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#005c7a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ABA Mobile" />
+    <link rel="icon" type="image/png" href="/icon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <script>
+      (function() {
+        console.log('--- ULTIMATE FETCH FIX ---');
+        try {
+          const originalFetch = window.fetch;
+
+          function applyFix(target) {
+            try {
+              const desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+              if (desc && !desc.configurable) return false;
+
+              let currentFetch = originalFetch;
+              Object.defineProperty(target, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(v) {
+                  console.log('Fetch overwritten safely');
+                  currentFetch = v;
+                },
+                configurable: true,
+                enumerable: true
+              });
+              return true;
+            } catch (e) {
+              return false;
+            }
+          }
+
+          // Try to define it directly on window first.
+          // If fetch is a getter on the prototype, defining it on window (the instance)
+          // will shadow the prototype getter and allow assignments.
+          if (!applyFix(window)) {
+            // Fallback to prototype if window definition failed for some reason
+            const proto = Object.getPrototypeOf(window);
+            if (proto) applyFix(proto);
+          }
+          console.log('Ultimate fetch fix applied');
+        } catch (e) {
+          console.error('Ultimate fetch fix failed:', e);
+        }
+      })();
+
+      // Unregister Service Worker in local development to avoid blocking HMR and bundlers
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (let registration of registrations) {
+              registration.unregister().then(() => console.log('Service Worker unregistered on localhost'));
+            }
+          });
+        }
+      } else if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('ServiceWorker registered:', reg.scope))
+            .catch((err) => console.error('ServiceWorker registration failed:', err));
+        });
+      }
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
