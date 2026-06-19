@@ -993,6 +993,12 @@ async function initializeApp() {
       const txType = type === 'plus' ? 'receive' : 'send'; 
       const finalNote = note || `Admin Adjustment (${type === 'plus' ? '+' : '-'})`;
       
+      const CAMBODIAN_NAMES = [
+        "Sok Samnang", "Chea Vanna", "Meas Sophea", "Chan Rithy", "Keo Srey", 
+        "Phan Sothea", "Ratha Lim", "Sovannara Chea", "Vireak Bun", "Dara Noun", 
+        "Sopheap Ouk", "Piseth Chhorn", "Bopha Khem", "Chanthou Prak", "Kosal Yim", 
+        "Sokha Seng", "Nareth Nguon", "Thida Mao", "Sophea Yin", "Rithy Heng"
+      ];
       let finalPartyName = partyName;
       if (type === 'plus') {
         if (!finalPartyName || finalPartyName === 'ABA SYSTEM') {
