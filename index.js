@@ -890,7 +890,8 @@ async function initializeApp() {
     }
   });
 
-  app.post('/api/admin/create-user', isAdmin, async (req, res) => {
+  app.get('/api/db-status', (req, res) => { const isPostgres = !!process.env.DATABASE_URL || !!process.env.POSTGRES_URL; res.json({ ok: true, database: isPostgres ? 'PostgreSQL' : 'SQLite (Volatile)' }); });
+app.post('/api/admin/create-user', isAdmin, async (req, res) => {
     const { phone, pin } = req.body;
     if (!phone || !pin) return res.status(400).json({ ok: false, error: 'Phone and PIN are required' });
 
