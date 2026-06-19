@@ -130,7 +130,26 @@ export function parseEMV(str: string): Record<string, string> {
 }
 
 /**
+ * Calculates CRC16 over raw bytes (for multi-byte character support)
+ */
+function crc16Bytes(bytes: Uint8Array): string {
+  let crc = 0xFFFF;
+  for (let i = 0; i < bytes.length; i++) {
+    crc ^= bytes[i] << 8;
+    for (let j = 0; j < 8; j++) {
+      if ((crc & 0x8000) !== 0) {
+        crc = (crc << 1) ^ 0x1021;
+      } else {
+        crc <<= 1;
+      }
+    }
+  }
+  return (crc & 0xFFFF).toString(16).toUpperCase().padStart(4, '0');
+}
+
+/**
  * Verifies if an EMVCo string has a valid CRC16
+ * Handles both ASCII-only and multi-byte (UTF-8) encoded QR strings
  */
 export function verifyKHQR(str: string): boolean {
   if (str.length < 4) return false;
@@ -138,7 +157,27 @@ export function verifyKHQR(str: string): boolean {
   const check = str.slice(-4).toUpperCase();
   // Ensure the CRC section exists "6304"
   if (!data.endsWith("6304")) return false;
-  return crc16(data) === check;
+
+  // Try ASCII CRC first (most common case)
+  if (crc16(data) === check) return true;
+
+  // Try UTF-8 byte-level CRC (for strings with multi-byte characters like Khmer, Vietnamese)
+  try {
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(data);
+    if (crc16Bytes(bytes) === check) return true;
+  } catch (e) {}
+
+  // Try ISO-8859-1 byte-level CRC (some QR libraries encode this way)
+  try {
+    const bytes = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      bytes[i] = data.charCodeAt(i) & 0xFF;
+    }
+    if (crc16Bytes(bytes) === check) return true;
+  } catch (e) {}
+
+  return false;
 }
 
 /**

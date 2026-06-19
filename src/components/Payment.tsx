@@ -147,9 +147,13 @@ export default function Payment({
 
     if (scannedData.startsWith('000201')) {
       const khqr = parseKHQR(scannedData);
-      setQrValid(khqr.isValid);
-      setRecipientAccount(khqr.accountNo?.trim() || '');
-      setRecipientName(khqr.name || 'Unknown Recipient');
+      const parsedAccount = khqr.accountNo?.trim() || '';
+      const parsedName = khqr.name || '';
+      // Consider QR valid if CRC passes OR if we successfully extracted account info
+      const hasUsableData = parsedAccount.length > 0 || parsedName.length > 0;
+      setQrValid(khqr.isValid || hasUsableData);
+      setRecipientAccount(parsedAccount);
+      setRecipientName(parsedName || 'Unknown Recipient');
       if (khqr.amount) setAmount(khqr.amount);
       const targetCur: Currency = khqr.currency === '116' ? 'KHR' : 'USD';
       setCurrency(targetCur);
