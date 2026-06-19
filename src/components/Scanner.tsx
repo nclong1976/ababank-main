@@ -31,27 +31,6 @@ interface ScannerProps {
   onScan: (data: string) => void;
 }
 
-/* ─────────────────────────────────────────────
-   Corner bracket (Neon color shifting)
-   ───────────────────────────────────────────── */
-const CornerBracket = ({ position, color }: { position: 'tl' | 'tr' | 'bl' | 'br'; color: string }) => {
-  const size = 'w-10 h-10';
-  const borderWidth = 'border-[4px]';
-
-  const styles: Record<typeof position, string> = {
-    tl: `top-0 left-0 border-t ${borderWidth} border-l ${borderWidth} rounded-tl-2xl`,
-    tr: `top-0 right-0 border-t ${borderWidth} border-r ${borderWidth} rounded-tr-2xl`,
-    bl: `bottom-0 left-0 border-b ${borderWidth} border-l ${borderWidth} rounded-bl-2xl`,
-    br: `bottom-0 right-0 border-b ${borderWidth} border-r ${borderWidth} rounded-br-2xl`,
-  };
-
-  return (
-    <div 
-      className={`absolute ${size} ${styles[position]} transition-all duration-300 shadow-[0_0_10px_rgba(255,255,255,0.15)]`} 
-      style={{ borderColor: color }}
-    />
-  );
-};
 
 /* ─────────────────────────────────────────────
    Autofocus Indicator
@@ -216,12 +195,12 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
         await videoRef.current.play();
       }
 
-      // Kích hoạt vòng lặp giải mã
+      // Start the decoder loop
       startDecoderLoop();
     } catch (err: any) {
       console.error("Camera capture error: ", err);
       setCameraError(
-        "Ứng dụng cần quyền truy cập camera để quét mã QR chuyển tiền. Vui lòng cấp quyền trong phần cài đặt trình duyệt của bạn."
+        "Camera access is required to scan QR codes for transfers. Please grant camera permission in your browser settings."
       );
     }
   };
@@ -307,13 +286,13 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
           advanced: [{ torch: nextState } as any]
         });
         setFlashOn(nextState);
-        showToast(nextState ? "Bật đèn Flash" : "Tắt đèn Flash");
+        showToast(nextState ? "Flash turned on" : "Flash turned off");
       } else {
-        showToast("Thiết bị không hỗ trợ điều khiển Flash trên trình duyệt");
+        showToast("Flash is not supported on this device browser");
       }
     } catch (e) {
       console.error("Failed to control flashlight:", e);
-      showToast("Không thể điều khiển đèn Flash");
+      showToast("Unable to control flash");
     }
   };
 
@@ -329,7 +308,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    showToast("Đang tải và giải mã mã QR từ ảnh...");
+    showToast("Loading and decoding QR code from image...");
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -338,7 +317,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         if (!ctx) {
-          handleScanFailure("Không thể tạo bộ giải mã.");
+          handleScanFailure("Unable to create image decoder.");
           return;
         }
 
@@ -353,11 +332,11 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
           if (code && code.data) {
             handleScanSuccess(code.data);
           } else {
-            handleScanFailure("Không phát hiện được mã QR hợp lệ trong ảnh.");
+            handleScanFailure("No valid QR code detected in the image.");
           }
         } catch (err) {
           console.error(err);
-          handleScanFailure("Lỗi phân tích hình ảnh.");
+          handleScanFailure("Image analysis error.");
         }
       };
       img.src = event.target?.result as string;
@@ -369,12 +348,12 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualCode.trim()) {
-      showToast("Vui lòng nhập mã số thanh toán.");
+      showToast("Please enter a payment code.");
       return;
     }
 
     if (manualCode.length < 6 || manualCode.length > 20) {
-      handleScanFailure("Mã số thanh toán phải từ 6 đến 20 số.");
+      handleScanFailure("Payment code must be between 6 and 20 digits.");
       return;
     }
 
@@ -459,14 +438,14 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
         <div className="flex h-[270px] shrink-0">
           <div className="flex-1 bg-black/60 backdrop-blur-[1px] transition-colors duration-300" />
           
-          {/* Scanning cutout square window */}
-          <div className="w-[270px] h-[270px] shrink-0 bg-transparent relative pointer-events-auto">
-            {/* Corner brackets */}
-            <CornerBracket position="tl" color={neonColor} />
-            <CornerBracket position="tr" color={neonColor} />
-            <CornerBracket position="bl" color={neonColor} />
-            <CornerBracket position="br" color={neonColor} />
-
+          {/* Scanning cutout square window with gentle outline */}
+          <div 
+            className="w-[270px] h-[270px] shrink-0 bg-transparent relative pointer-events-auto rounded-3xl transition-all duration-500"
+            style={{
+              border: `1.5px solid ${neonColor}65`,
+              boxShadow: `0 0 20px ${neonColor}15, inset 0 0 15px ${neonColor}10`,
+            }}
+          >
             {/* Target autofocus indicators */}
             {scanning && <AutofocusIndicator />}
 
@@ -525,7 +504,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
 
         {/* Center Title */}
         <h1 className="text-lg font-bold tracking-wider text-white text-center drop-shadow-md">
-          Chuyển tiền qua QR
+          QR Transfer
         </h1>
 
         {/* Exit Button (X) */}
@@ -534,7 +513,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
           whileTap={{ scale: 0.88 }}
           onClick={onClose}
           className="w-10 h-10 rounded-full bg-black/35 backdrop-blur-md flex items-center justify-center text-white border border-white/10 hover:bg-black/50 transition-all cursor-pointer"
-          aria-label="Đóng quét mã QR"
+          aria-label="Close QR scanner"
         >
           <X className="w-5 h-5" />
         </motion.button>
@@ -556,7 +535,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
                 <Info className="w-5 h-5 text-[#00bcd4] shrink-0" />
                 <div className="flex-1">
                   <p className="text-[11px] text-gray-300 leading-normal">
-                    Không quét được? Hãy thử bật <strong>đèn Flash</strong> hoặc <strong>Nhập mã số thanh toán</strong> bằng tay bên dưới.
+                    Having trouble scanning? Try turning on the <strong>Flash</strong> or <strong>Enter payment code</strong> manually below.
                   </p>
                 </div>
               </motion.div>
@@ -575,7 +554,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
                 onClick={startCamera}
                 className="px-4 py-2 bg-white/10 border border-white/20 hover:bg-white/15 text-white text-xs font-semibold rounded-lg transition-colors cursor-pointer"
               >
-                Thử lại Camera
+                Retry Camera
               </motion.button>
             </div>
           </div>
@@ -586,7 +565,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
           <div className="flex items-center gap-2 bg-black/40 backdrop-blur-xs border border-white/5 rounded-full py-1.5 px-4 shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5 text-[#4ade80]" />
             <span className="text-[9.5px] text-white/70 tracking-wide font-medium">
-              Mã hóa bảo mật KHQR 256-bit • ABA Bank
+              KHQR 256-bit Encrypted • ABA Bank
             </span>
           </div>
         </div>
@@ -607,7 +586,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
             id="scanner-flash-btn"
             onClick={toggleFlash}
             className="flex flex-col items-center group cursor-pointer"
-            aria-label={flashOn ? "Tắt đèn Flash" : "Bật đèn Flash"}
+            aria-label={flashOn ? "Turn off Flash" : "Turn on Flash"}
           >
             <div
               className="w-12 h-12 rounded-full border flex items-center justify-center mb-2 transition-all duration-300"
@@ -620,7 +599,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
               <Zap className={`w-5 h-5 transition-transform duration-300 ${flashOn ? 'text-[#00bcd4] scale-110' : 'text-white/80'}`} />
             </div>
             <span className={`text-[10px] font-semibold tracking-wide ${flashOn ? 'text-[#00bcd4]' : 'text-white/75'}`}>
-              Đèn Flash
+              Flash
             </span>
           </button>
 
@@ -629,13 +608,13 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
             id="scanner-gallery-btn"
             onClick={handleGalleryClick}
             className="flex flex-col items-center group cursor-pointer"
-            aria-label="Chọn QR từ thư viện ảnh"
+            aria-label="Select QR from photo gallery"
           >
             <div className="w-12 h-12 rounded-full border border-white/15 bg-white/6 flex items-center justify-center mb-2 group-hover:bg-white/10 transition-colors">
               <ImageIcon className="w-5 h-5 text-white/80" />
             </div>
             <span className="text-[10px] font-semibold text-white/75 tracking-wide">
-              Thư viện ảnh
+              Gallery
             </span>
           </button>
 
@@ -647,13 +626,13 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
               setShowManualModal(true);
             }}
             className="flex flex-col items-center group cursor-pointer"
-            aria-label="Nhập mã số thủ công"
+            aria-label="Enter code manually"
           >
             <div className="w-12 h-12 rounded-full border border-white/15 bg-white/6 flex items-center justify-center mb-2 group-hover:bg-white/10 transition-colors">
               <Keyboard className="w-5 h-5 text-white/80" />
             </div>
             <span className="text-[10px] font-semibold text-white/75 tracking-wide">
-              Nhập mã số
+              Enter Code
             </span>
           </button>
         </div>
@@ -687,11 +666,11 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
               className="absolute bottom-0 left-0 right-0 z-50 bg-[#0d2a35] border-t border-white/10 rounded-t-3xl pb-8 pt-5 px-6"
             >
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-bold text-white tracking-wide">Nhập mã số thanh toán</h3>
+                <h3 className="text-base font-bold text-white tracking-wide">Enter Payment Code</h3>
                 <button
                   onClick={() => setShowManualModal(false)}
                   className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/80 hover:bg-white/10 cursor-pointer"
-                  aria-label="Đóng modal"
+                  aria-label="Close modal"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -700,7 +679,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
               <form onSubmit={handleManualSubmit} className="space-y-4">
                 <div>
                   <label htmlFor="manual-code-input" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">
-                    Nhập Merchant Account hoặc mã KHQR ID
+                    Enter Merchant Account or KHQR ID
                   </label>
                   <div className="relative">
                     <input
@@ -710,7 +689,7 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
                       inputMode="numeric"
                       value={manualCode}
                       onChange={(e) => setManualCode(e.target.value.replace(/[^A-Za-z0-9]/g, ''))}
-                      placeholder="Ví dụ: 0199998888"
+                      placeholder="e.g. 0199998888"
                       className="w-full bg-black/45 border border-white/15 rounded-xl py-3 px-4 text-white text-base tracking-wide focus:outline-none focus:border-[#00bcd4] transition-colors"
                       autoFocus
                     />
@@ -723,13 +702,13 @@ export default function Scanner({ onClose, onScan }: ScannerProps) {
                     onClick={() => setShowManualModal(false)}
                     className="flex-1 py-3 bg-white/5 border border-white/10 text-white font-semibold text-sm rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
                   >
-                    Hủy bỏ
+                    Cancel
                   </button>
                   <button
                     type="submit"
                     className="flex-1 py-3 bg-[#e63946] text-white font-semibold text-sm rounded-xl hover:bg-[#d8313e] shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    Xác nhận
+                    Confirm
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
