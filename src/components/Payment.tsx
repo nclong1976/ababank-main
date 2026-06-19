@@ -428,9 +428,6 @@ export default function Payment({
             </div>
           </div>
           <h2 className="text-[17px] font-bold tracking-wide text-white">{recipientName}</h2>
-          {recipientAccount && (
-            <p className="mt-0.5 text-sm" style={{ color: '#8CB1C2' }}>{recipientAccount}</p>
-          )}
         </div>
 
         {/* Amount Display */}

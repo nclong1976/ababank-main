@@ -338,9 +338,6 @@ export default function Receipt({
             <div className="px-5 pt-5 pb-5 space-y-3.5">
               <DetailRow label="Trx. ID" value={trxId} mono />
               <DetailRow label="Transaction date" value={displayDate} />
-              <DetailRow label="From account" value={resolvedSenderAccount} />
-              <DetailRow label="To account" value={resolvedRecipientAccount} />
-              {note ? <DetailRow label="Note" value={note} /> : null}
               <div className="pt-1 border-t border-gray-100">
                 <DetailRow label="Amount" value={`${formattedAmountVal} ${resolvedCurrency}`} bold />
               </div>
