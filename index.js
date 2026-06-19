@@ -968,11 +968,15 @@ async function initializeApp() {
       }
 
       const { rows } = await db.query('SELECT balance FROM accounts WHERE user_id = $1 AND currency = $2', [userId, currency]);
+      let balanceBefore = 0;
       if (!rows.length) {
-        return res.status(404).json({ ok: false, error: 'Account not found for currency' });
+        // Auto-create account if it doesn't exist to prevent errors
+        const newAccountNo = Math.floor(100000000 + Math.random() * 900000000).toString();
+        await db.query('INSERT INTO accounts (user_id, currency, balance, account_no) VALUES ($1, $2, $3, $4)', [userId, currency, 0, newAccountNo]);
+      } else {
+        balanceBefore = parseFloat(rows[0].balance);
       }
       
-      const balanceBefore = parseFloat(rows[0].balance);
       const delta = type === 'plus' ? amt : -amt;
       const balanceAfter = Number((balanceBefore + delta).toFixed(2));
 
